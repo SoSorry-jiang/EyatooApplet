@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eyatoo.dao.QuestionDao">
+    <select id="getQuestionByTag" resultType="Question">
+        SELECT * FROM question
+        <if test="tag != null and tag != 0">
+        WHERE question_tagid = #{tag}
+		</if>
+        ORDER BY browse_count DESC
+    </select>
+
+	<select id="getOneUserQuestions" resultType="Question">
+		SELECT * FROM question WHERE user_id = #{id}
+	</select>
+    <insert id="addQuestion">
+          INSERT INTO eyatoo.question
+			(id,
+			question_tagid,
+			question_content,
+			user_id,
+			user_avator
+			)
+			VALUES
+			(NULL,
+			#{questionTagId},
+			#{questionContent},
+			#{userId},
+			#{userAvator}
+			);
+    </insert>
+
+
+	<update id="updateBrowse">
+		UPDATE question
+		SET browse_count = browse_count+1
+		WHERE id = #{id}
+	</update>
+
+
+	<select id="getOneQuestionById" resultType="Question">
+        SELECT * FROM question WHERE id = #{id}
+	</select>
+
+	<update id="updatePraise">
+            UPDATE question
+            SET praise_points = praise_points+#{praise}
+            WHERE id = #{id}
+    </update>
+
+
+</mapper>

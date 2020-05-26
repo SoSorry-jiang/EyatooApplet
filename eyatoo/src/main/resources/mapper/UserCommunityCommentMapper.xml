@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eyatoo.dao.UserCommunityCommentDao">
+    <select id="getAllCommunityCommentById" resultType="UserCommunityComment">
+        SELECT * FROM user_community_comment
+        WHERE community_id = #{id}
+        ORDER BY create_time DESC
+--      ORDER BY prase_count DESC
+    </select>
+
+    <select id="getAllReplyById" resultType="UserCommunityCommentReply">
+        SELECT * FROM user_community_comment_reply WHERE reply_id = #{id} ORDER BY create_time DESC
+    </select>
+
+
+	<select id="getAllReplyListByCommunityId" resultType="UserCommunityCommentReply">
+        SELECT * FROM user_community_comment_reply WHERE community_id = #{id} ORDER BY create_time DESC
+    </select>
+    <insert id="addCommunityComment" >
+        INSERT INTO eyatoo.user_community_comment
+	      (id,
+	      community_id,
+	      user_id,
+	      doctor_id,
+	      user_avator,
+ 	      user_name,
+	      user_level,
+	      content
+	      )
+	    VALUES
+	     (NULL,
+	      #{communityId},
+	      #{userId},
+	      #{doctorId},
+	      #{userAvator},
+	      #{userName},
+	      #{userLevel},
+	      #{content}
+	      );
+    </insert>
+
+	<insert id="addCommentReply">
+        INSERT INTO eyatoo.user_community_comment_reply
+        	(id,
+        	community_id,
+	        user_id,
+	        doctor_id,
+	        user_name,
+	        content,
+	        reply_id,
+	        reply_reply_id
+ 	        )
+	    VALUES
+	       (null,
+	       #{communityId},
+	       #{userId},
+	       #{doctorId},
+	       #{userName},
+	       #{content},
+	       #{replyId},
+	       #{replyReplyId}
+	       );
+	</insert>
+
+	<update id="updateCommentPrase">
+          UPDATE user_community_comment
+          SET  prase_count = prase_count+ #{number}
+          WHERE id = #{id}
+	</update>
+
+	<delete id="deleteOneCommunityAllComment">
+		DELETE FROM user_community_comment_reply WHERE community_id = #{communityId};
+		DELETE FROM user_community_comment WHERE community_id = #{communityId};
+	</delete>
+	<delete id="deleteOneCommunityCommentAllReply">
+		DELETE FROM user_community_comment_reply WHERE reply_id = #{commentId};
+      	DELETE FROM user_community_comment WHERE id  = #{commentId};
+	</delete>
+
+</mapper>

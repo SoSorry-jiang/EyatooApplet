@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eyatoo.dao.CouponDao">
+    <select id="getOutPreName" resultType="String">
+        SELECT outpatient_name FROM outpatient_presentations WHERE id = #{outPreId}
+    </select>
+
+    <select id="getAllCoupon"  resultType="Coupon">
+        SELECT * FROM coupon
+        <where>
+            <if test="projectId != null and projectId != 0"> and project_id= #{projectId}</if>
+            <if test="branchId !=  null ">  AND branch_id = #{branchId}</if>
+            <if test="1==1">AND is_drafts = 0 AND #{unixDate} &lt; UNIX_TIMESTAMP(end_time)  </if>
+        </where>
+    </select>
+
+    <select id="getOneOutPreAllCoupon" resultType="Coupon">
+            SELECT * FROM coupon WHERE branch_id = #{outPreId}
+            <if test="couponType != 0 and couponType!=null">
+                AND coupon_type= #{couponType}
+            </if>
+            <if test="1==1">
+                and is_drafts = #{isDrafts}
+            </if>
+    </select>
+
+    <insert id="OutPreAddCoupon">
+        INSERT INTO eyatoo.coupon
+            (id,
+            branch_id,
+            project_id,
+            coupon_name,
+            coupon_type,
+            coupon_discount_type,
+            coupon_demand_money,
+            coupon_discount_money,
+            coupon_rebate,
+            coupon_explain,
+            coupon_condition_explain,
+            start_time,
+            end_time,
+            is_drafts
+            )
+            VALUES
+            (null ,
+            #{branchId},
+            #{projectId},
+            #{couponName},
+            #{couponType},
+            #{couponDiscountType},
+            #{couponDemandMoney},
+            #{couponDiscountMoney},
+            #{couponRebate},
+            #{couponExplain},
+            #{couponConditionExplain},
+            #{startTime},
+            #{endTime},
+            #{isDrafts}
+            );
+    </insert>
+
+    <insert id="userReceiveCoupon">
+        INSERT INTO eyatoo.user_coupon
+            (id,
+            user_id,
+            coupon_id,
+            coupon_status
+            )
+            VALUES
+            (null ,
+            #{userId},
+            #{couponId},
+            1
+            );
+    </insert>
+
+    <update id="userGiveOtherUserCoupon">
+        UPDATE user_coupon
+        SET user_id = #{userId},coupon_status = 2
+        WHERE id = #{userCouponId}
+    </update>
+
+    <select id="isHaveFrdGiveCoupon" resultType="UserCoupon">
+        SELECT * from user_coupon WHERE user_id=#{userId} AND coupon_status = 2
+    </select>
+
+    <update id="updateFrdGiveCouponStatus">
+        UPDATE user_coupon
+        SET   coupon_status = 1
+        WHERE id = #{userCouponId}
+    </update>
+
+    <update id="updateUserCouponStatus">
+        UPDATE user_coupon
+        SET   coupon_status = 0
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="getOneUserAllCoupon" resultType="java.util.HashMap">
+         SELECT cp.*,uc.coupon_status,uc.id ucoupon_id,uc.agent_id AS ucoupon_agent_id    FROM coupon cp,user_coupon uc WHERE cp.id = uc.coupon_id AND uc.user_id = #{userId}
+    </select>
+
+
+    <select id="getCanUseCouponBySome" resultType="java.util.HashMap">
+        SELECT cp.*,uc.id ucoupon_id,uc.agent_id AS ucoupon_agent_id   FROM coupon cp,user_coupon uc
+        <where>
+            <if test="1 == 1">
+               and cp.id = uc.coupon_id
+               and uc.coupon_status = 1
+               AND #{unixDate} &lt; UNIX_TIMESTAMP(end_time)
+               AND uc.user_id = #{userId}
+            </if>
+            <if test="MaxMoney != 0 and MaxMoney != null">
+              AND cp.coupon_demand_money &lt;= #{MaxMoney}
+            </if>
+            <if test="branchId != 0 and branchId != null">
+                AND cp.branch_id In (#{branchId},0)
+            </if>
+            <if test="proId != 0 and proId != null">
+                AND cp.project_id in (#{proId},0)
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getSomeCouponByIds" resultType="Coupon">
+         select * from coupon
+         <where>
+            <if test="idList != null">
+                and id in
+                <foreach collection="idList" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="1 == 1">
+                AND #{unixDate} &lt; UNIX_TIMESTAMP(end_time)
+            </if>
+         </where>
+    </select>
+
+    <delete id="userUseCoupon">
+         delete from user_coupon where id = #{userCouponId}
+    </delete>
+</mapper>

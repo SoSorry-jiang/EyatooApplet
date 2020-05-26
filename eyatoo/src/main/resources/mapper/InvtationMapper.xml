@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eyatoo.dao.InvitationDao">
+     <select id="getOneUserAgent" resultType="Agent">
+          SELECT * FROM agent WHERE user_id = #{id}
+     </select>
+
+    <select id="getOneUserInvitedPs" resultType="Invited">
+          SELECT * FROM invited WHERE user_id = #{id} and invited_status = #{status}
+    </select>
+    
+    <select id="getCountInvitedUserStatus" resultType="int">
+        SELECT COUNT(1) FROM invited  WHERE invited_status = 0 AND user_id = #{id}
+    </select>
+
+<!--    //添加被邀请用户-->
+<!--    Integer addInvitedUser(invitedUser);-->
+<!--    //根据医生id 获取该用户邀请的人-->
+<!--    List<Invited> getOneDoctorInvitedPs(Integer id);-->
+<!--    //根据医生id 获取该用户的经纪人-->
+<!--    List<Agent> getOneDoctorAgent(Integer id);-->
+<!--    //根据医生id获取被邀请但未就诊用户总数-->
+<!--    Integer getDoctorCountInvitedUserStatus(Integer id);-->
+     <insert id="addInvitedUser">
+        INSERT INTO eyatoo.invited
+            (id,
+            user_id,
+            doctor_id,
+            invitedprs_id
+            )
+            VALUES
+            (null,
+            #{userId},
+            #{doctorId},
+            #{invitedPrsId}
+            );
+     </insert>
+
+    <select id="getOneDoctorInvitedPs" resultType="Invited">
+       SELECT * FROM invited WHERE doctor_id = #{id} and invited_status = #{status}
+    </select>
+
+<!-- 医生查看我的经纪人，可暂时不做   <select id="getOneDoctorAgent" resultType="Agent">-->
+<!--    </select>-->
+
+    <select id="getDoctorCountInvitedUserStatus" resultType="int">
+        SELECT COUNT(1) FROM invited  WHERE invited_status = 0 AND doctor_id = #{id}
+    </select>
+
+
+    <select id="judgeUser" resultType="int">
+         SELECT COUNT(1) FROM invited  WHERE user_id = #{userId} AND invitedprs_id = #{invitedId}
+    </select>
+</mapper>

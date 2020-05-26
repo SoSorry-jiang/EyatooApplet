@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eyatoo.dao.InvitationDoctorDao">
+
+    <insert id="addInvitationDoctor">
+        INSERT INTO eyatoo.invitation_doctor
+            (id,
+            doctor_id,
+            invitation_branch_id,
+            invitation_status
+            )
+            VALUES
+            (null,
+             #{doctorId},
+            #{invitationBranchId},
+            #{invitationStatus}
+            );
+    </insert>
+
+    <select id="invitationDoctorList" resultType="InvitationDoctor">
+        SELECT * FROM invitation_doctor
+        <where>
+            <if test="branchId != 0 and branchId != null">AND invitation_branch_id = #{branchId}</if>
+            <if test="outPrsId != 0 and outPrsId != null">
+            AND invitation_branch_id IN (SELECT id FROM project_branch WHERE outpatient_presentationsId = #{outPrsId})
+            </if>
+        </where>
+    </select>
+
+    <select id="invitationBranchList"  resultType="java.util.HashMap">
+        SELECT op.outpatient_name,op.icon,foc.name focname,fop.name fopname,ido.invitation_status,ido.id,ido.doctor_id,ido.invitation_branch_id,ido.create_time FROM invitation_doctor ido,outpatient_presentations op,filter_outpatient_hospital_type fop,filter_outpatient_chain foc
+        WHERE op.chainId = foc.id AND op.hospitalTypeId = fop.id AND ido.invitation_branch_id = op.id
+        AND ido.doctor_id = #{doctorId}
+    </select>
+
+    <select id="yzIsReady" resultType="Integer">
+        SELECT COUNT(1) FROM invitation_doctor WHERE doctor_id = #{doctorId} AND invitation_branch_id = #{branchId}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE invitation_doctor
+        SET invitation_status = #{status}
+        WHERE doctor_id = #{doctorId} AND invitation_branch_id = #{branchId}
+    </update>
+</mapper>

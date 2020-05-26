@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eyatoo.dao.UserCommentDao">
+
+    <select id="getAllCommentsByAaticlesId" resultType="UserComment">
+       SELECT * FROM user_comment WHERE comment_articles_id = #{id}
+    </select>
+
+    <select id="getAllCommentsByUserId" resultType="UserComment">
+       SELECT * FROM user_comment WHERE comment_user_id = #{id}
+    </select>
+
+    <insert id="addUserComments">
+        INSERT INTO eyatoo.user_comment
+            (id,
+            comment_user_id,
+            user_avator,
+            user_name,
+            comment_articles_id,
+            comment_doctor_id,
+            comments,
+            score,
+            pictureA,
+            pictureB,
+            pictureC,
+            pictureD,
+            pictureE
+            )
+            VALUES
+            (null,
+            #{commentUserId},
+            #{userAvator},
+            #{userName},
+            #{commentArticlesId},
+            #{commentDoctorId},
+            #{comments},
+            #{score},
+            #{pictureA},
+            #{pictureB},
+            #{pictureC},
+            #{pictureD},
+            #{pictureE}
+            );
+    </insert>
+
+
+    <delete id="deleteComments">
+          DELETE FROM eyatoo.user_comment
+	      WHERE
+	      id = #{id}
+    </delete>
+
+
+    <select id="getAllDoctorCommentisById" resultType="UserComment">
+          SELECT * FROM user_comment
+          WHERE comment_doctor_id =#{doctorId} AND comment_articles_id = #{proId} AND comment_user_id = #{userId} ORDER BY create_time DESC LIMIT 0,1
+    </select>
+</mapper>

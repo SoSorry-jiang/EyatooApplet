@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eyatoo.dao.AccountsDao">
+
+    <insert id="addUserAccounts">
+            INSERT INTO eyatoo.accounts
+                        (id,
+                         project_id,
+                         doctor_id,
+                         buy_doctor_id,
+                         user_id,
+                         branch_id,
+                         STATUS,
+                         number,
+                         medical_time,
+                         Remarks,
+                         finallay_money,
+                         finally_pay_outpre_money,
+                         should_pay_money,
+                         technology_supply_money,
+                         marketing_money,
+                         others_money,
+                         forward_status,
+                         coupon_agent_id)
+            VALUES (#{id},
+                    #{projectId},
+                    #{doctorId},
+                    #{buyDoctorId},
+                    #{userId},
+                    #{branchId},
+                    #{Status},
+                    #{number},
+                    null ,
+                    #{Remarks},
+                    #{finallayMoney},
+                    #{finallyPayOutpreMoney},
+                    #{shouldPayMoney},
+                    #{technologySupplyMoney},
+                    #{marketingMoney},
+                    #{othersMoney},
+                    1,
+                    #{couponAgentId});
+    </insert>
+
+    <select id="getOneUserAccounts" resultType="Accounts">
+        SELECT * FROM accounts a WHERE a.user_id = #{id} AND `status` >= 4
+        ORDER BY a.create_time DESC
+    </select>
+
+    <select id="getDoctorAccountStatus" resultType="Accounts">
+        SELECT * FROM accounts WHERE doctor_id = #{doctorId}
+        <if test="status != null">and status in
+        <foreach collection="status" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="getOneUserDisTreatment" resultType="Accounts">
+        SELECT * FROM accounts a WHERE a.user_id = #{id} AND `status` = 2
+        ORDER BY a.create_time DESC
+    </select>
+
+    <select id="getUserAccountStatus" resultType="Accounts">
+        SELECT * FROM accounts WHERE user_id = #{userId}
+        <if test="status != 0">
+        and `status` = #{status}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectUserCoummityAccounts" resultType="Accounts">
+        SELECT * FROM accounts WHERE project_id = #{projectId} AND user_id = #{userId}
+    </select>
+
+    <select id="getAllClinicOrdersByBranchId" resultType="Accounts">
+        SELECT * FROM accounts
+        <where>
+            <if test="branchId != 0 and branchId != null">and branch_id = #{branchId}</if>
+            <if test="status != null">and status in
+                <foreach collection="status" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="outPreId != 0 and outPreId != null">and branch_id IN
+                (SELECT id FROM project_branch WHERE outpatient_presentationsId = #{outPreId}) </if>
+            <if test="appointedTime != '' and appointedTime != null">
+                AND DATE_FORMAT(#{appointedTime}, '%Y-%m-%d') = DATE_FORMAT(create_time, '%Y-%m-%d')
+            </if>
+            <if test="beforeDate != '' and beforeDate != null and afterDate == null">
+                AND DATE_FORMAT(#{beforeDate}, '%Y-%m-%d') = DATE_FORMAT(create_time, '%Y-%m-%d')
+            </if>
+            <if test="beforeDate != '' and beforeDate != null and afterDate != '' and afterDate != null">
+                AND DATE_FORMAT(#{beforeDate}, '%Y-%m-%d')  &lt;= DATE_FORMAT(create_time, '%Y-%m-%d') AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;=  DATE_FORMAT(#{afterDate}, '%Y-%m-%d')
+            </if>
+            <if test="1==1">
+                AND `status` NOT IN (0,1)
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getAppointedTimeAccounts" resultType="java.util.HashMap">
+        SELECT create_time,COUNT(1) as msg_count,SUM(finallay_money) as finallay_money FROM accounts
+            <where>
+                <if test="typeId != 0 and typeId != null">
+                    AND project_id IN (SELECT id FROM project_medical_advertisement WHERE medicalTreatmentProjectId = #{typeId})
+                </if>
+                <if test="branchId != 0 and branchId != null">
+                    AND branch_id = #{branchId}
+                </if>
+                <if test="beforeDate != '' and beforeDate != null and afterDate == null">
+                    AND DATE_FORMAT(#{beforeDate}, '%Y-%m-%d') = DATE_FORMAT(create_time, '%Y-%m-%d')
+                </if>
+                <if test="beforeDate != '' and beforeDate != null and afterDate != '' and afterDate != null">
+                    AND DATE_FORMAT(#{beforeDate}, '%Y-%m-%d')  &lt;= DATE_FORMAT(create_time, '%Y-%m-%d') AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;=  DATE_FORMAT(#{afterDate}, '%Y-%m-%d')
+                </if>
+                <if test="1==1">
+                    AND `status` NOT IN (0,1)
+                </if>
+            </where>
+            GROUP BY DATE_FORMAT(create_time,'%Y-%m-%d')
+            ORDER BY create_time desc
+            <if test='start!=null and end!=null'>
+                limit #{start},#{end}
+            </if>
+    </select>
+
+
+    <select id="getFinancialAccounts" resultType="java.util.HashMap">
+        SELECT storename,SUM(should_pay_money) AS spMoney,SUM(finally_pay_outpre_money) AS finallay_money,SUM(technology_supply_money) AS technology_supply_money
+        ,SUM(marketing_money) AS marketing_money,SUM(others_money) AS others_money,forward_status,accounts.create_time FROM accounts,project_branch p
+        <where>
+            <if test="1==1">
+            AND branch_id = p.id
+            </if>
+            <if test="Month != null and Month != ''">
+            and EXTRACT(YEAR FROM #{Month}) = EXTRACT(YEAR FROM accounts.create_time) AND EXTRACT(MONTH FROM #{Month}) = EXTRACT(MONTH FROM accounts.create_time)
+            </if>
+            <if test="branchId != 0 and branchId != null">
+                AND branch_id = #{branchId}
+            </if>
+            <if test="outPreId != 0 and outPreId != null">
+                 and branch_id IN
+                (SELECT id FROM project_branch WHERE outpatient_presentationsId = #{outPreId})
+            </if>
+            <if test="forwardStatus != 0 and forwardStatus != null">
+               and  forward_status = #{forwardStatus}
+            </if>
+            <if test="forwardStatus == 2 and  forwardType != 0 and forwardType != null">
+                AND foward_type = #{forwardType}
+            </if>
+            <if test="1==1">
+                AND `status` NOT IN (0,1)
+            </if>
+        </where>
+        GROUP BY DATE_FORMAT(create_time,'%Y-%m-%d')
+        ORDER BY create_time desc
+        <if test='start!=null and end!=null'>
+            limit #{start},#{end}
+        </if>
+    </select>
+
+    <select id="getAllUserUsedProject" resultType="java.util.HashMap">
+            SELECT sma.id proId,doctor.id doctorId,sma.title,sma.path pro_Avator,sma.storeName,doctor.doctor_name,doctor.doctor_avator,dp.project_money
+            FROM project_medical_advertisement sma,doctor,doctor_project dp
+            WHERE  sma.id = dp.doctor_project_id
+            AND doctor.id = dp.doctor_id
+            AND sma.id = #{id} AND doctor.id = #{doctorId}
+    </select>
+
+    <select id="getUserLastOneOfProjectBy" resultType="Accounts">
+        SELECT * FROM accounts
+        WHERE user_id = #{userId} AND coupon_agent_id = #{agentId} AND STATUS NOT IN(0,1)
+        ORDER BY create_time DESC LIMIT 0,1
+    </select>
+
+    <select id="getUserAllProjectBy" resultType="Accounts">
+        SELECT * FROM accounts
+        WHERE user_id = #{userId} AND coupon_agent_id = #{agentId} AND STATUS NOT IN(0,1)
+    </select>
+
+
+
+    <update id="updateTreatmentCode">
+            UPDATE eyatoo.accounts
+            SET treament_code = #{codePath}
+            WHERE id = #{id};
+    </update>
+
+    <select id="getOneAccountsById" resultType="Accounts">
+        SELECT * FROM accounts
+        WHERE id = #{id}
+    </select>
+
+
+    <update id="updateAccountsStatus">
+         update accounts
+         set   id=#{id},status = #{status}
+         where id = #{id}
+    </update>
+
+    <select id="getOneUserIsTreatment" resultType="Accounts">
+        SELECT * FROM accounts WHERE user_id = #{id} AND STATUS IN (4,5,6)
+        ORDER BY create_time DESC
+    </select>
+
+    <update id="updateMedTime">
+          update accounts
+          set medical_time = #{medTime}
+          where id = #{id}
+    </update>
+
+
+    <update id="updateForwardStatusByOneOutPre">
+          UPDATE accounts
+          SET forward_status = #{status},foward_type = #{payType}
+          WHERE
+          DATE_FORMAT(#{beforeDate}, '%Y-%m-%d')  &lt;= DATE_FORMAT(create_time, '%Y-%m-%d')
+          AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;=  DATE_FORMAT(#{afterDate}, '%Y-%m-%d')
+          AND branch_id IN (SELECT id FROM project_branch WHERE outpatient_presentationsId = #{outPreId})
+    </update>
+
+
+    <select id="getOneOutpreAllReadyOrder" resultType="java.util.HashMap">
+        SELECT accounts.id AS accId,user.txphoto AS userAvator,user.name AS userName,user.phone AS userPhone,pro.title AS proTitle,pro.storeName AS proStroeName,pro.path AS proAvator,accounts.status AS accStatus,accounts.medical_time AS MedTime,accounts.coupon_agent_id AS agentId,accounts.should_pay_money AS proMoney,user.id AS userId
+        FROM accounts,`user`,project_medical_advertisement pro
+        WHERE
+        accounts.project_id = pro.id
+        AND accounts.user_id = user.id
+        AND accounts.status NOT IN (0,1)
+            <if test="outPreId != 0 and outPreId != null">
+                AND branch_id IN
+                (SELECT id FROM project_branch WHERE outpatient_presentationsId = #{outPreId})
+            </if>
+            <if test="accId != 0 and accId != null">
+                ANd accounts.id = #{accId}
+            </if>
+        ORDER BY accounts.create_time DESC
+    </select>
+</mapper>

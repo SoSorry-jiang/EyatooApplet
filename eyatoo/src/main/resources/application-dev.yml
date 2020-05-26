@@ -1,0 +1,37 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /eyatoo
+
+spring:
+  datasource:
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/eyatoo?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+
+
+mybatis:
+  mapper-locations: mapper/*Mapper.xml
+  type-aliases-package: com.eyatoo.pojo
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com:
+      eyatoo:
+         dao: debug
+
+ftp:
+  #远程上传文件需要的配置
+  ip: 101.37.162.85
+  port: 21
+  userName: eyatooFTP
+  password: 123654asd..
+  basePath: \images
+  imageBaseUrl: https://eyatoo.cn:444/images/
+  #将项目打包成jar包时候(相当于本地),根据项目要求添加一个在服务器要保存图片的路径
+  serverPath: E:\eytooIMG\
+
+

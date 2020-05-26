@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eyatoo.dao.AgentPointDao">
+    <!--用户-->
+    <update id="addCountPoints">
+        UPDATE `user`
+        SET jjr_points = jjr_points+#{num}
+        WHERE id = #{id}
+    </update>
+    <update id="updateUsedPoints">
+        UPDATE `user`
+        SET jjr_conunt_points = jjr_points+#{num}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUserUsedUserPoints">
+        UPDATE `user`
+        SET hy_points = hy_points+#{num}
+        WHERE id = #{id}
+    </update>
+
+    <!--医生-->
+    <update id="addDoctorCountPoints">
+        UPDATE `doctor`
+        SET jjr_points = jjr_points+#{num}
+        WHERE id = #{id}
+    </update>
+    <update id="updateDoctorUsedPoints">
+        UPDATE `doctor`
+        SET jjr_conunt_points = jjr_points+#{num}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateDoctorUsedUserPoints">
+        UPDATE `doctor`
+        SET hy_points = hy_points+#{num}
+        WHERE id = #{id}
+    </update>
+
+
+
+</mapper>

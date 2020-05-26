@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eyatoo.dao.DoctorDao">
+    <select id="getAllDoctor" resultType="Doctor">
+        SELECT * FROM doctor
+        <where>
+            <if test="idList != null">
+                and id in
+                 <foreach collection="idList" item="id" open="(" separator="," close=")">
+                     #{id}
+                 </foreach>
+            </if>
+            <if test="name != null and name != ''">
+             and doctor_name  LIKE concat('%',#{name},'%')
+            </if>
+            <if test="education != '' and education != null">AND doctor_Education = #{education} </if>
+            <if test="distanceId==1 and distanceId!=null and distanceId!=''">
+                <if test="minlng != 0 and maxlng!=0 and minlat!=0 and maxlat!=0">
+                    and id in (SELECT doctor_id FROM doctor_branch WHERE branch_id in (
+                    SELECT id FROM project_branch
+                    WHERE longitude &gt;= #{minlng} and longitude &lt;= #{maxlng} and latitude &gt;= #{minlat} and latitude &lt;= #{maxlat}
+                    ))
+                </if>
+            </if>
+            <if test="distanceId==2 and distanceId!=null and distanceId!=''">
+                and 1=1
+            </if>
+            <if test="1 == 1">
+                and doctor_status = 1
+            </if>
+        </where>
+        <if test="orderBy != '' and orderBy != null">
+            ORDER BY #{orderBy} DESC
+        </if>
+
+    </select>
+
+    <select id="getOneOfDoctorById" resultType="Doctor">
+        SELECT * FROM doctor WHERE id = #{id}
+    </select>
+
+    <select id="getOneOfDoctorTag" resultType="DoctorTag">
+        SELECT * FROM doctor_tag WHERE doctor_id = #{id}
+    </select>
+
+    <select id="getAllTag" resultType="DoctorTag">
+        SELECT * FROM doctor_tag
+    </select>
+
+
+    <update id="updateDoctorDefaultAddress">
+          update eyatoo.doctor
+          set doctor_default_address = #{addressId}
+          where id = #{doctorId}
+    </update>
+
+    <select id="getOutpatientPresentationsDoctor" resultType="Doctor">
+        SELECT * FROM doctor
+        <where>
+            <if test="outPreId != 0 and outPreId != null">
+                and id IN
+                (SELECT doctor_id FROM doctor_branch WHERE branch_id IN
+                (SELECT id FROM project_branch WHERE outpatient_presentationsId = #{outPreId}))
+            </if>
+            <if test="branchId != 0 and branchId != null">
+                and id IN
+                (SELECT doctor_id FROM doctor_branch WHERE branch_id = #{branchId})
+            </if>
+            <if test="1==1">
+                and doctor_status = 1
+            </if>
+        </where>
+    </select>
+
+    <select id="branchGetAllDoctor" resultType="Doctor">
+        SELECT * FROM doctor
+        <where>
+            <if test="education != '' and education != null">AND doctor_Education = #{education} </if>
+            <if test="beforeWorkYear != null and beforeWorkYear != 0 and lastWorkDate != null and lastWorkDate != 0">AND doctor_work_year BETWEEN  #{beforeWorkYear}  AND #{lastWorkDate}</if>
+            <if test="major != null and major != ''">
+            AND id IN
+                (SELECT doctor_id FROM doctor_specialize
+                WHERE
+                specialize_major_A = #{major}
+                OR specialize_major_B = #{major}
+                OR specialize_major_C = #{major}
+                OR specialize_major_D = #{major}
+                OR specialize_major_E = #{major})
+                </if>
+            <if test="sex != null">AND sex = #{sex}</if>
+            <if test="1 == 1">
+                and doctor_status = 1
+            </if>
+        </where>
+            <if test="orderBy == 'order_count'">
+                ORDER BY order_count DESC
+            </if>
+            <if test="orderBy == 'fans_count'">
+                ORDER BY fans_count DESC
+            </if>
+            <if test="orderBy == 'community_count'">
+                ORDER BY community_count DESC
+            </if>
+            <if test="orderBy == 'answer_count'">
+                ORDER BY answer_count DESC
+            </if>
+    </select>
+
+    <insert id="addDoctor" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO eyatoo.doctor
+            (id,
+            doctor_name,
+            doctor_job,
+            doctor_avator,
+            doctor_work_year,
+            doctor_phone,
+            doctor_status,
+            doctor_login_password,
+            doctor_Education,
+            introduce,
+            diploma,
+            personal_information,
+            register_record,
+            is_out_landlocked,
+            id_card_positive,
+            id_card_back,
+            start_work_time,
+            sex
+            )
+            VALUES
+            (#{id},
+            #{doctorName},
+            #{doctorJob},
+            #{doctorAvator},
+            #{doctorWorkYear},
+            #{doctorPhone},
+            0,
+            #{doctorLoginPassword},
+            #{doctorEducation},
+            #{introduce},
+            #{diploma},
+            #{personalInformation},
+            #{registerRecord},
+            #{isOurLandLocked},
+            #{idCardPositive},
+            #{idCardBack},
+            #{startWorkTime},
+            #{sex}
+            );
+    </insert>
+    <insert id="addDoctorMajor">
+        INSERT INTO eyatoo.doctor_specialize
+            (id,
+            doctor_id,
+            specialize_major_A,
+            specialize_major_B,
+            specialize_major_C,
+            specialize_major_D,
+            specialize_major_E,
+            specialize_major_F
+            )
+            VALUES
+            (null,
+            #{doctorId},
+            #{specializeMajorA},
+            #{specializeMajorB},
+            #{specializeMajorC},
+            #{specializeMajorD},
+            #{specializeMajorE},
+            #{specializeMajorF}
+            );
+    </insert>
+
+
+    <select id="findAllAgentDoctor" resultType="Doctor">
+       SELECT * FROM `doctor` WHERE is_agent = 1 AND `doctor_name` LIKE CONCAT('%',#{name},'%') ORDER BY jjr_level desc;
+    </select>
+
+
+    <select id="findOneProjectDoctor" resultType="java.util.HashMap">
+        SELECT
+        doctor.id doctor_id,doctor.doctor_avator,doctor.doctor_name,doctor.doctor_tag,doctor.doctor_Education,doctor.answer_count
+        ,doctor.community_count,doctor.case_count,pb.storename,dp.project_money,pb.id As branchId
+        FROM doctor_project dp,project_branch pb,doctor
+        WHERE
+        dp.doctor_id = doctor.id
+        AND dp.branch_id = pb.id
+        AND dp.doctor_project_id = #{id}
+        and doctor_status = 1
+    </select>
+
+
+    <update id="updateAnswerCount">
+        UPDATE `doctor`
+        SET answer_count = answer_count+1
+        WHERE id = #{id}
+    </update>
+    <update id="updateCommunityCount">
+        UPDATE `doctor`
+        SET community_count = community_count+1
+        WHERE id = #{id}
+    </update>
+    <update id="updateFans_Count">
+        UPDATE `doctor`
+        SET fans_count = fans_count+1
+        WHERE id = #{id}
+    </update>
+    <update id="updateOrderCount">
+        UPDATE `doctor`
+        SET order_count = order_count+1
+        WHERE id = #{id}
+    </update>
+    <update id="updateCaseCount">
+        UPDATE `doctor`
+        SET case_count = case_count+1
+        WHERE id = #{id}
+    </update>
+
+
+    <update id="updateDoctorAvatorOrName">
+        UPDATE eyatoo.doctor
+        <trim prefix="set" suffixOverrides=",">
+            <if test="name != null and name != ''">doctor_name = #{name} ,</if>
+            <if test="filePath != null and filePath!=''">doctor_avator = #{filePath},</if>
+            <if test="phone != null">doctor_phone = #{phone},</if>
+        </trim>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateDoctorOtherTablesMsg">
+        UPDATE doctor_answer <trim prefix="set" suffixOverrides=","><if test="userName != null and userName !=''">doctor_name = #{userName},</if> <if test="userAvator != null and userAvator !=''">doctor_avator = #{userAvator},</if></trim>  where doctor_id = #{id};
+
+        UPDATE doctor_case <trim prefix="set" suffixOverrides=","><if test="userName != null and userName !=''">doctor_name = #{userName},</if> <if test="userAvator != null and userAvator !=''">doctor_avator = #{userAvator},</if></trim> WHERE doctor_id = #{id};
+
+        UPDATE doctor_community <trim prefix="set" suffixOverrides=","><if test="userName != null and userName !=''">doctor_name = #{userName},</if> <if test="userAvator != null and userAvator !=''">doctor_avator = #{userAvator},</if></trim> WHERE doctor_id = #{id};
+
+        UPDATE user_community_comment <trim prefix="set" suffixOverrides=","><if test="userName != null and userName !=''">user_name = #{userName},</if><if test="userAvator != null and userAvator !=''">user_avator = #{userAvator},</if></trim> WHERE doctor_id = #{id};
+
+        <if test="userName != null and userName !=''"> UPDATE user_community_comment_reply  set user_name = #{userName} WHERE doctor_id = #{id};</if>
+
+        UPDATE question_community_comment <trim prefix="set" suffixOverrides=","><if test="userName != null and userName !=''">user_name = #{userName},</if> <if test="userAvator != null and userAvator !=''">user_avator = #{userAvator},</if></trim> WHERE doctor_id = #{id};
+
+        <if test="userName != null and userName !=''"> UPDATE question_community_comment_reply  set user_name = #{userName} WHERE doctor_id = #{id};</if>
+
+        UPDATE doctor_community_comment <trim prefix="set" suffixOverrides=","><if test="userName != null and userName !=''">user_name = #{userName},</if> <if test="userAvator != null and userAvator !=''">user_avator = #{userAvator},</if></trim> WHERE doctor_id = #{id};
+
+        <if test="userName != null and userName !=''"> UPDATE doctor_community_comment_reply  set user_name = #{userName} WHERE doctor_id = #{id};</if>
+    </update>
+
+    <select id="yzDoctorPhone" resultType="Doctor">
+         SELECT * FROM doctor WHERE doctor_phone = #{yzDoctorPhone}
+    </select>
+
+
+    <select id="DoctorLogin" resultType="Integer">
+        SELECT COUNT(1) FROM doctor WHERE  doctor_phone = #{phone} AND doctor_login_password= #{password}
+    </select>
+
+    <update id="DoctorUpdatePsd">
+        UPDATE doctor
+        SET doctor_login_password = #{password}
+        WHERE doctor_phone = #{phone}
+    </update>
+
+    <update id="updateAgentStatus">
+        UPDATE doctor
+        SET is_agent = #{status}
+        WHERE id = #{doctorId}
+    </update>
+
+    <update id="updateTrueMsg">
+        UPDATE doctor
+        SET id_card = #{idCard},true_name = #{trueName}
+        WHERE id = #{doctorId}
+    </update>
+
+    <update id="updateDoctorAgentLevel">
+        UPDATE doctor
+        SET jjr_level = #{level}
+        WHERE id = #{doctorId}
+    </update>
+
+
+    <select id="getOneDoctorAllOutPre" resultType="java.util.HashMap">
+           SELECT * FROM outpatient_presentations WHERE id IN (SELECT outpatient_presentationsId FROM project_branch WHERE id IN(
+           SELECT branch_id FROM doctor_branch WHERE doctor_id = #{doctorId}) GROUP BY outpatient_presentationsId)
+    </select>
+</mapper>

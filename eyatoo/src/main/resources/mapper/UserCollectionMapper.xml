@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eyatoo.dao.UserCollectionDao">
+
+    <!--该语句为商品表中，暂未移过去-->
+    <select id="findUserCollectedMsgById" resultType="SyMedicalAdvertisement">
+        SELECT * FROM sy_medical_advertisement
+        WHERE id =
+       (SELECT collected_articles_id FROM user_collection WHERE collected_user_id = #{id})
+    </select>
+
+    <select id="findUserCollectedIdById" resultType="int">
+        SELECT collected_articles_id FROM user_collection WHERE collected_user_id = #{id}
+    </select>
+
+    <select id="getCountCollectedById" resultType="int">
+      SELECT COUNT(1) FROM user_collection WHERE collected_articles_id =#{id}
+   </select>
+
+
+    <insert id="addCollection">
+     INSERT INTO eyatoo.user_collection
+	    (id,
+	    collected_user_id,
+	    collected_articles_id
+ 	    )
+	VALUES
+	   (NULL,
+	    #{collectedUserId},
+	    #{collectedArticlesId}
+	);
+    </insert>
+
+    <delete id="delCollection">
+        DELETE FROM eyatoo.user_collection WHERE collected_user_id = #{collectedUserId} and collected_articles_id = #{collectedArticlesId}
+    </delete>
+
+
+    <select id="findUserIsCollectedPro" resultType="int">
+        SELECT COUNT(1) FROM user_collection WHERE collected_user_id = #{collectedUserId} and collected_articles_id = #{collectedArticlesId}
+    </select>
+</mapper>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eyatoo.dao.DoctorWorkDateDao">
+    <!--//添加医生医生坐诊日期-->
+    <!--Integer addDoctorWorkDate(DoctorWorkDate doctorWorkDate);-->
+    <!--//修改医生坐诊日期-->
+    <!--Integer updateDoctorWorkDate(DoctorWorkDate doctorWorkDate);-->
+    <!--//删除医生以前的坐诊日期-->
+    <!--Integer delDoctorWorkDate(Integer id);-->
+    <insert id="addDoctorWorkDate">
+            INSERT INTO eyatoo.doctor_work_date
+            (id,
+            doctor_id,
+            start_time,
+            end_time,
+            branch_id
+            )
+            VALUES
+            (null ,
+            #{doctorId},
+            #{startTime},
+            #{endTime},
+            #{branchId}
+            );
+
+    </insert>
+
+    <update id="updateDoctorWorkDate">
+            UPDATE eyatoo.doctor_work_date
+                SET
+                doctor_id = #{doctorId} ,
+                start_time = #{startTime},
+                end_time = #{endTime} ,
+                branch_id = #{branchId}
+                WHERE
+                id = #{id} ;
+    </update>
+
+    <delete id="delDoctorWorkDate">
+        DELETE FROM doctor_work_date WHERE id = #{id}
+    </delete>
+
+
+    <select id="yzIsWorkDate" resultType="int">
+        SELECT COUNT(1) FROM doctor_work_date WHERE DATE_FORMAT(end_time, '%Y-%m-%d') &lt; DATE_FORMAT(#{date}, '%Y-%m-%d') AND doctor_id = #{doctorId}
+    </select>
+
+    <select id="getDefaultDoctorWorkDate" resultType="DoctorWorkDate">
+        SELECT * FROM doctor_work_date WHERE doctor_id = #{doctorId}
+    </select>
+
+    <select id="getCountByDoctorWorkDate" resultType="int">
+        SELECT COUNT(1) FROM doctor_work_date WHERE doctor_id = #{doctorId}
+    </select>
+</mapper>

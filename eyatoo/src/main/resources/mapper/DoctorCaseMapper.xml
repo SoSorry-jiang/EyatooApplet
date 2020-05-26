@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eyatoo.dao.DoctorCaseDao">
+
+    <insert id="addDoctorCase"  useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO eyatoo.doctor_case
+            (doctor_id,
+            content,
+            before_photo,
+            after_photo
+            )
+            VALUES
+            (#{doctorId},
+            #{content},
+            #{beforePhoto},
+            #{afterPhoto}
+            );
+    </insert>
+
+    <delete id="deleteDoctorCase">
+         DELETE FROM doctor_case WHERE id = #{id}
+    </delete>
+
+    <select id="getOneDoctorAllCase" resultType="DoctorCase">
+         SELECT * FROM doctor_case WHERE doctor_id = #{doctorId}
+    </select>
+
+    <select id="getOneCase" resultType="DoctorCase">
+          SELECT * FROM doctor_case WHERE id = #{id}
+    </select>
+
+    <update id="updatePraise">
+            UPDATE doctor_case
+            SET praise_count = praise_count+#{praise}
+            WHERE id = #{id}
+    </update>
+
+    <update id="updatePhoto">
+        UPDATE doctor_case
+        SET after_photo = #{path}
+        WHERE id = #{id}
+    </update>
+</mapper>

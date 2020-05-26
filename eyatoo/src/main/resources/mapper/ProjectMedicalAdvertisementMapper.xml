@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eyatoo.dao.ProjectMedicalAdvertisementDao">
+
+    <select id="getList" resultType="ProjectMedicalAdvertisement">
+        SELECT * FROM project_medical_advertisement AS pma
+        WHERE pma.medicalTreatmentProjectId = (SELECT id FROM sy_medical_treatment_project WHERE NAME = #{medicalTreatmentProjectName})
+        <if test="city!=null and city!=''">
+            and city = #{city}
+        </if>
+        <if test="outpatientTypeId!=null and outpatientTypeId!=''">
+            and pma.outpatientTypeId = #{outpatientTypeId}
+        </if>
+        <if test="technologyTypeId!=null and technologyTypeId!=''">
+            and pma.technologyTypeId = #{technologyTypeId}
+        </if>
+        <if test="otherTypeId!=null and otherTypeId!=''">
+            and pma.otherTypeId = #{otherTypeId}
+        </if>
+        <if test="MinimumPrice!=null and MinimumPrice!='' and TopPrice!=null and TopPrice!=''">
+            and pma.price BETWEEN #{MinimumPrice} AND #{TopPrice}
+        </if>
+        <choose>
+            <when test="priceSort=='priceDown' and priceSort!=null and priceSort!=''">
+                order by pma.price desc
+            </when>
+            <when test="priceSort=='priceUp' and priceSort!=null and priceSort!=''">
+                order by pma.price asc
+            </when>
+            <when test="salesVolumeSort=='salesVolumeDown' and salesVolumeSort!=null and salesVolumeSort!=''">
+                order by pma.salesVolume desc
+            </when>
+            <when test="salesVolumeSort=='salesVolumeUp' and salesVolumeSort!=null and salesVolumeSort!=''">
+                order by pma.salesVolume asc
+            </when>
+        </choose>
+    </select>
+
+    <select id="getJiBen" resultType="ProjectMedicalAdvertisement">
+        SELECT * FROM project_medical_advertisement WHERE id = #{id}
+    </select>
+
+    <select id="getZLXiangMu" resultType="ProjectMedicalAdvertisement">
+        SELECT * FROM project_medical_advertisement AS pma
+        INNER JOIN outpatient_presentations AS opt ON pma.outpatientpresentationsId = opt.id
+        WHERE opt.id =
+        (SELECT pma.outpatientpresentationsId FROM project_medical_advertisement AS pma
+        WHERE pma.id = #{ProjectMedicalAdvertisementId})
+    </select>
+
+    <select id="getAllProjectId" resultType="int">
+         SELECT id FROM project_medical_advertisement
+    </select>
+
+    <select id="findUserCollectedMsgById"  resultType="ProjectMedicalAdvertisement">
+        SELECT * FROM project_medical_advertisement
+        WHERE id IN
+       (SELECT collected_articles_id FROM user_collection WHERE collected_user_id = #{id})
+    </select>
+</mapper>

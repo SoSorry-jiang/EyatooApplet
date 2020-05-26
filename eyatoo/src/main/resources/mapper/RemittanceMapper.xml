@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eyatoo.dao.RemittanceDao">
+
+    <insert id="addRemittance">
+
+            INSERT INTO eyatoo.remittance
+                (id,
+                branch_id,
+                remittance_money,
+                remittance_mode,
+                payment_status
+                )
+                VALUES
+                (null,
+                #{branchId},
+                #{remittanceMoney},
+                #{remittanceMode},
+                #{paymentStatus}
+                );
+    </insert>
+
+    <select id="getAllRemittance" resultType="Remittance">
+         SELECT * FROM remittance
+         <where>
+             <if test="branchId != 0 and branchId != null">and branch_id = #{branchId}</if>
+             <if test="outPreId != 0 and outPreId != null">and branch_id IN
+                 (SELECT id FROM project_branch WHERE outpatient_presentationsId = #{outPreId}) </if>
+             <if test="remittanceTime != null and remittanceTime != ''">
+                 and DATE_SUB(#{remittanceTime}, INTERVAL 30 DAY) &lt;= date(create_time)
+             </if>
+         </where>
+    </select>
+
+</mapper>

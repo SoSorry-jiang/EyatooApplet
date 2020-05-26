@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eyatoo.dao.DoctorCommunityDao">
+    <select id="getAllDoctorCommunityByTag" resultType="DoctorCommunity">
+          SELECT * FROM  doctor_community
+          <if test="tag != null and tag != 0">
+          WHERE project_tagid = #{tag}
+          </if>
+          ORDER BY create_time DESC
+
+    </select>
+
+    <select id="getOneDoctorCommunityById" resultType="DoctorCommunity">
+            SELECT * FROM doctor_community
+            WHERE id = #{id}
+    </select>
+
+    <select id="getOneOfDoctorCommunitById" resultType="DoctorCommunity">
+            SELECT * FROM doctor_community WHERE doctor_id = #{id}
+    </select>
+
+    <insert id="addDoctorCommunity">
+
+            INSERT INTO eyatoo.doctor_community
+                (id,
+                doctor_id,
+                doctor_name,
+                doctor_avator,
+                title,
+                picture_A,
+                picture_B,
+                picture_C,
+                picture_D,
+                picture_E,
+                content_A,
+                content_B,
+                content_C,
+                content_D,
+                project_tagid
+                )
+                VALUES
+                (null,
+                #{doctorId},
+                #{doctorName},
+                #{doctorAvator},
+                #{title},
+                #{pictureA},
+                #{pictureB},
+                #{pictureC},
+                #{pictureD},
+                #{pictureE},
+                #{contentA},
+                #{contentB},
+                #{contentC},
+                #{contentD},
+                #{projectTagId}
+                );
+    </insert>
+
+
+    <update id="updateBrowseVolume">
+            UPDATE doctor_community
+            SET browse_volume = browse_volume+1
+            WHERE id = #{id}
+    </update>
+
+    <update id="updatePraise">
+            UPDATE doctor_community
+            SET praise_points = praise_points+#{praise}
+            WHERE id = #{id}
+    </update>
+</mapper>

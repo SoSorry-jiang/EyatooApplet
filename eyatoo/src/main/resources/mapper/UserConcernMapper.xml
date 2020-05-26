@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eyatoo.dao.UserConcernDao">
+    <select id="getUserConcerntionList" resultType="UserConcern">
+        SELECT * FROM user_concern WHERE concerned_user = #{id}
+    </select>
+
+    <select id="getUserConcernedList" resultType="UserConcern">
+        SELECT * FROM user_concern WHERE user_id = #{id}
+    </select>
+
+
+    <insert id="userConcernedUser">
+        INSERT user_concern (concerned_user,user_id)
+        VALUES (#{concernedUser},#{userId})
+    </insert>
+
+    <delete id="userDisConcernedUser">
+        DELETE FROM user_concern WHERE concerned_user = #{concernedUser} AND user_id = #{userId}
+    </delete>
+
+    <insert id="userConcernedDoctor">
+        INSERT user_concern (concerned_doctor,user_id)
+        VALUES (#{concernedDoctor},#{userId})
+    </insert>
+
+    <delete id="userDisConcernedDoctor">
+        DELETE FROM user_concern WHERE concerned_doctor = #{concernedDoctor} AND user_id = #{userId}
+    </delete>
+
+    <select id="isConcernedOrNot" resultType="int">
+                SELECT COUNT(1) FROM user_concern
+                 <where>
+                     <if test="user_id != 0 and user_id != null">and user_id = #{user_id}</if>
+                     <if test="doctor_id != 0 and doctor_id != null">AND doctor_id = #{doctor_id}</if>
+                     <if test="concerned_doctor != 0 and concerned_doctor != null">AND concerned_doctor = #{concerned_doctor}</if>
+                     <if test="concerned_user != 0 and concerned_user != null">AND concerned_user = #{concerned_user}</if>
+                 </where>
+
+    </select>
+
+
+</mapper>

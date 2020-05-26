@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eyatoo.dao.DoctorConcernDao">
+    <select id="getDoctorConcerntionList" resultType="UserConcern">
+        SELECT * FROM user_concern WHERE  concerned_doctor = #{id}
+    </select>
+
+    <select id="getDoctorConcernedList" resultType="UserConcern">
+        SELECT * FROM user_concern WHERE  doctor_id  = #{id}
+    </select>
+
+    <insert id="doctorConcernedUser">
+        INSERT user_concern (concerned_user,doctor_id)
+        VALUES (#{concernedUser},#{doctorId})
+    </insert>
+
+    <delete id="doctorDisConcernedUser">
+        DELETE FROM user_concern WHERE concerned_user = #{concernedUser} AND doctor_id = #{doctorId}
+    </delete>
+
+    <insert id="doctorConcernedDoctor">
+        INSERT user_concern (concerned_doctor,doctor_id)
+        VALUES (#{concernedDoctor},#{doctorId})
+    </insert>
+
+    <delete id="doctorDisConcernedDoctor">
+        DELETE FROM user_concern WHERE concerned_doctor = #{concernedDoctor} AND doctor_id = #{doctorId}
+    </delete>
+</mapper>

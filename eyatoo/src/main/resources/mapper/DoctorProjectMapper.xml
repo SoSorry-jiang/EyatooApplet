@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eyatoo.dao.DoctorProjectDao">
+
+
+    <select id="selectProFormDoctorById"  resultType="com.eyatoo.pojo.DoctorProject">
+        SELECT * FROM doctor_project WHERE doctor_id = #{doctorId}
+    </select>
+
+    <select id="selectDoctorFormProById" resultType="com.eyatoo.pojo.DoctorProject">
+        SELECT * FROM doctor_project WHERE doctor_project_id = #{projectId}
+    </select>
+
+
+
+    <select id="selectDoctorDoPro" resultType="int">
+        SELECT doctor_id FROM doctor_project
+        <if test="proDo != 0 ">
+            WHERE doctor_project_id IN
+            (SELECT id FROM  project_medical_advertisement WHERE medicalTreatmentProjectId = #{proDo});
+        </if>
+    </select>
+
+    <select id="getMoneyByDoctorAndBranchId" resultType="double">
+        SELECT project_money FROM doctor_project WHERE doctor_project_id = #{projectId} and doctor_id = #{doctorId}
+    </select>
+
+    <insert id="addProjectDoctor">
+        INSERT INTO eyatoo.doctor_project
+        (
+        doctor_id,
+        doctor_project_id,
+        branch_id,
+        project_money
+        )
+        VALUES
+        (
+        #{doctorId},
+        #{doctorProjectId},
+        #{branchId},
+        #{projectMoney}
+        );
+
+    </insert>
+
+    <select id="selectProjectDoctor" resultType="com.eyatoo.pojo.DoctorProject">
+        SELECT * FROM doctor_project WHERE branch_id = #{branchId}
+    </select>
+</mapper>

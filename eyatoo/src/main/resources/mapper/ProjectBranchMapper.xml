@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eyatoo.dao.ProjectBranchDao">
+
+    <select id="getFenDianList" resultType="com.eyatoo.pojo.ProjectBranch">
+        SELECT pb.* FROM linked_pb_pma AS lpp
+        INNER JOIN project_branch AS pb ON pb.id = lpp.project_branch_id
+        WHERE lpp.project_medical_advertisement_id = #{projectMedicalAdvertisementId}
+    </select>
+
+    <select id="getOneBranchById"  resultType="ProjectBranch">
+        select * from project_branch where id = #{id}
+    </select>
+
+    <select id="getFenDainAll" resultType="com.eyatoo.pojo.ProjectBranch">
+        SELECT * FROM project_branch AS pb
+        <where>
+            <if test="outpatientPresentationsId != null and outpatientPresentationsId!=''">
+                pb.outpatient_presentationsId = #{outpatientPresentationsId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAllBranch" resultType="ProjectBranch">
+        SELECT * FROM project_branch
+    </select>
+
+    <update id="update">
+        UPDATE eyatoo.project_branch
+        SET
+        storename = #{storeName},
+        address = #{address},
+        longitude = #{longitude},
+        latitude = #{latitude},
+        workingday = #{workingday},
+        businesshours = #{businesshours},
+        phone = #{phone},
+        updateTime = #{updateTime}
+        WHERE
+        id = #{id};
+    </update>
+
+    <select id="getMZidBypmaId" resultType="com.eyatoo.pojo.ProjectBranch">
+        SELECT pb.* FROM project_branch AS pb
+        WHERE pb.id = (SELECT MIN(lpp.project_branch_id) FROM linked_pb_pma AS lpp
+        WHERE lpp.project_medical_advertisement_id = #{projectMedicalAdvertisementId})
+    </select>
+
+    <select id="getvicinity" resultType="com.eyatoo.pojo.ProjectBranch">
+        SELECT * FROM project_branch
+        WHERE longitude &gt;= #{minlng} and longitude &lt;= #{maxlng} and latitude &gt;= #{minlat} and latitude &lt;= #{maxlat}
+    </select>
+
+</mapper>

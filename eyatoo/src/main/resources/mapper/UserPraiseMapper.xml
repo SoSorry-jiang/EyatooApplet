@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eyatoo.dao.UserPraiseDao">
+    <select id="checkUser" resultType="int">
+         SELECT COUNT(1) FROM user_praise WHERE
+         <if test="userId != 0 and userId != null">user_id= #{userId};</if>
+		<if test="doctorId != 0 and doctorId != null">doctor_id = #{doctorId};</if>
+    </select>
+
+    <insert id="addPraise" parameterType="UserPraise">
+		INSERT INTO eyatoo.user_praise
+					(id,
+					 user_id,
+					 doctor_id,
+					 user_community_comment_id,
+					 question_community_comment_id,
+					 doctor_community_comment_id,
+					 doctor_case_id,
+					 doctor_answer_id,
+					 doctor_community_id,
+					 question_id,
+					 user_community_id)
+		VALUES (NULL,
+				#{userId},
+				#{doctorId},
+				#{userCommunityCommentId},
+				#{questionCommunityCommentId},
+				#{doctorCommunityCommentId},
+				#{doctorCaseId},
+				#{doctorAnswerId},
+				#{doctorCommunityId},
+				#{questionId},
+				#{userCommunityId});
+    </insert>
+
+
+	<delete id="delPraise">
+		delete FROM  user_praise
+		<where>
+			<if test="userId != 0 and userId != null"> and user_id = #{userId}</if>
+			<if test="doctorId != 0 and doctorId != null"> and doctor_id = #{doctorId}</if>
+			<if test="userCommunityCommentId != null and userCommunityCommentId != 0"> and user_community_comment_id = #{userCommunityCommentId}</if>
+			<if test="questionCommunityCommentId != null and questionCommunityCommentId != 0"> and question_community_comment_id =#{questionCommunityCommentId}</if>
+			<if test="doctorCommunityCommentId != null and doctorCommunityCommentId != 0"> and doctor_community_comment_id =#{doctorCommunityCommentId}</if>
+			<if test="doctorCaseId != null and doctorCaseId != 0"> and doctor_case_id =#{doctorCaseId}</if>
+			<if test="doctorAnswerId != null and doctorAnswerId != 0"> and doctor_answer_id =#{doctorAnswerId}</if>
+			<if test="doctorCommunityId != null and doctorCommunityId != 0"> and doctor_community_id =#{doctorCommunityId}</if>
+			<if test="questionId != null and questionId != 0"> and question_id = #{questionId}</if>
+			<if test="userCommunityId != null and userCommunityId != 0"> and user_community_id = #{userCommunityId}</if>
+		</where>
+	</delete>
+
+
+
+
+    <select id="loginUserPraise" resultType="Integer">
+        SELECT COUNT(1) FROM  user_praise
+         <where>
+             <if test="userId != 0 and userId != null"> and user_id = #{userId}</if>
+             <if test="doctorId != 0 and doctorId != null"> and doctor_id = #{doctorId}</if>
+			 <if test="userCommunityCommentId != null and userCommunityCommentId != 0"> and user_community_comment_id = #{userCommunityCommentId}</if>
+			 <if test="questionCommunityCommentId != null and questionCommunityCommentId != 0"> and question_community_comment_id =#{questionCommunityCommentId}</if>
+			 <if test="doctorCommunityCommentId != null and doctorCommunityCommentId != 0"> and doctor_community_comment_id =#{doctorCommunityCommentId}</if>
+			 <if test="doctorCaseId != null and doctorCaseId != 0"> and doctor_case_id =#{doctorCaseId}</if>
+			 <if test="doctorAnswerId != null and doctorAnswerId != 0"> and doctor_answer_id =#{doctorAnswerId}</if>
+			 <if test="doctorCommunityId != null and doctorCommunityId != 0"> and doctor_community_id =#{doctorCommunityId}</if>
+			 <if test="questionId != null and questionId != 0"> and question_id = #{questionId}</if>
+			 <if test="userCommunityId != null and userCommunityId != 0"> and user_community_id = #{userCommunityId}</if>
+		 </where>
+    </select>
+
+
+	<delete id="userUseCoupon">
+       DELETE FROM user_coupon WHERE id = #{userCouponId}
+	</delete>
+</mapper>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eyatoo.dao.OutpatientPresentationsMapper">
+
+
+    <select id="getmenzhen" resultType="com.eyatoo.pojo.OutpatientPresentations">
+        SELECT * FROM outpatient_presentations AS opti
+        <where>
+            <if test="outpatientName!=null and outpatientName!=''">
+                and opti.outpatient_name LIKE CONCAT('%',#{outpatientName},'%')
+            </if>
+            <if test="chainId!=null and chainId!=''">
+                and opti.chainId = #{chainId}
+            </if>
+            <if test="hospitalTypeId!=null and hospitalTypeId!=''">
+                and opti.hospitalTypeId = #{hospitalTypeId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getmenzhenbytj" resultType="com.eyatoo.pojo.OutpatientPresentations">
+        SELECT opti.* FROM outpatient_presentations AS opti
+        INNER JOIN project_branch AS pb ON opti.id = pb.outpatient_presentationsId
+        <where>
+            <if test="outpatientName!=null and outpatientName!=''">
+                and opti.outpatient_name LIKE CONCAT('%',#{outpatientName},'%')
+            </if>
+            <if test="distanceId==1 and distanceId!=null and distanceId!=''">
+                and pb.longitude &gt;= #{minlng} and pb.longitude &lt;= #{maxlng} and pb.latitude &gt;= #{minlat} and pb.latitude &lt;= #{maxlat}
+            </if>
+            <if test="distanceId==2 and distanceId!=null and distanceId!=''">
+                and 1=1
+            </if>
+            <if test="chainId!=null and chainId!='' and chainId!=3">
+                and opti.chainId = #{chainId}
+            </if>
+            <if test="hospitalTypeId!=null and hospitalTypeId!='' and hospitalTypeId!=3">
+                and opti.hospitalTypeId = #{hospitalTypeId}
+            </if>
+                GROUP BY opti.outpatient_name
+        </where>
+    </select>
+
+
+    <select id="getIconPathByBranch" resultType="String">
+        SELECT icon FROM outpatient_presentations WHERE id = (SELECT outpatient_presentationsId FROM project_branch WHERE id = #{branchId});
+    </select>
+
+    <insert id="add" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO eyatoo.outpatient_presentations
+        (
+        outpatient_name,
+        icon,
+        province,
+        city,
+        AREA,
+        address,
+        phone,
+        legal_representative,
+        legal_person_idcard,
+        business_license,
+        medical_advertising_review,
+        radiology_license,
+        medical_institution,
+        chainId,
+        hospitalTypeId,
+        outpatientProfileId,
+        createTime,
+        updateTime
+        )
+        VALUES
+        (
+        #{outpatientName},
+        #{icon},
+        #{province},
+        #{city},
+        #{area},
+        #{address},
+        #{phone},
+        #{legalRepresentative},
+        #{legalPersonIdcard},
+        #{businessLicense},
+        #{medicalAdvertisingReview},
+        #{radiologyLicense},
+        #{medicalInstitution},
+        #{chainId},
+        #{hospitalTypeId},
+        #{outpatientProfileId},
+        #{createTime},
+        #{updateTime}
+        );
+    </insert>
+
+    <update id="zizhiupdate">
+        UPDATE eyatoo.outpatient_presentations
+        SET
+        business_license = #{businessLicense},
+        medical_advertising_review = #{medicalAdvertisingReview},
+        radiology_license = #{radiologyLicense},
+        medical_institution = #{medicalInstitution}
+        WHERE
+        id = #{id};
+    </update>
+
+    <select id="getmzbyoptId" resultType="com.eyatoo.pojo.OutpatientPresentations">
+        SELECT 	* FROM outpatient_presentations AS opt
+        WHERE opt.id = #{optId}
+    </select>
+</mapper>

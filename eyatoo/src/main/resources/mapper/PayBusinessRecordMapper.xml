@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eyatoo.dao.PayBusinessRecordDao">
+    <insert id="addPayBusinessRecord">
+        INSERT INTO eyatoo.pay_business_record
+                    (id,
+                     pay_outpre_id,
+                     pay_card_number,
+                     pay_type,
+                     pay_money,
+                     pay_mode,
+                     pay_status_remarks,
+                     pay_time,
+                     account_beforedate,
+                     account_afterdate)
+        VALUES (null ,
+                #{payOutpreId},
+                #{payCardNumber},
+                #{payType},
+                #{payMoney},
+                #{payMode},
+                #{payStatusRemarks},
+                #{payTime},
+                #{payTime},
+                #{accountAfterDate});
+    </insert>
+
+
+    <select id="getOneOutpreAllPayBusiness" resultType="PayBusinessRecord">
+          SELECT * FROM pay_business_record
+          <where>
+              <if test="outPreId != 0 and outPreId != null">
+                  And pay_outpre_id = #{outPreId}
+              </if>
+              <if test="type != null and type != 0">
+                  AND pay_type = #{type}
+              </if>
+              <if test="Month != null and Month != ''">
+                  and EXTRACT(YEAR FROM #{Month}) = EXTRACT(YEAR FROM pay_time) AND EXTRACT(MONTH FROM #{Month}) = EXTRACT(MONTH FROM pay_time)
+              </if>
+          </where>
+          ORDER BY pay_time desc
+          <if test='start!=null and end!=null'>
+            limit #{start},#{end}
+          </if>
+    </select>
+
+</mapper>

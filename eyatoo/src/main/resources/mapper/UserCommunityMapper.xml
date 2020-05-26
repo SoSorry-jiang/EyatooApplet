@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eyatoo.dao.UserCommunityDao">
+
+    <insert id="addCommunity" useGeneratedKeys="true" keyProperty="id">
+			INSERT INTO eyatoo.user_community
+				(
+				user_id,
+				project_id,
+				doctor_id,
+				before_photo,
+				after_photo,
+				content,
+				user_name,
+				user_avator
+				)
+				VALUES
+				(
+				#{userId},
+				#{projectId},
+				#{doctorId},
+				#{beforePhoto},
+				#{afterPhoto},
+				#{content},
+				#{userName},
+				#{userAvator}
+				);
+    </insert>
+
+    <select id="getCommunityList" resultType="UserCommunity">
+        SELECT * FROM  user_community u
+          WHERE u.project_id IN
+             (SELECT id FROM project_medical_advertisement
+             <if test="projectName != null and projectName != ''">
+             WHERE medicalTreatmentProjectId = #{projectName}
+			 </if>
+              )
+          ORDER BY create_time DESC
+    </select>
+
+	<select id="getOneCommunity" resultType="UserCommunity">
+		SELECT * FROM user_community
+        WHERE id = #{id}
+	</select>
+
+	<select id="getOneUserLog" resultType="UserCommunity">
+		SELECT * FROM user_community WHERE user_id = #{id} ORDER BY create_time desc
+	</select>
+
+	<select id="getAboutDoctorCommunity" resultType="UserCommunity">
+            SELECT * FROM user_community WHERE doctor_id = #{doctorId}
+	</select>
+
+
+	<update id="updatePhoto">
+		UPDATE user_community
+		SET after_photo = #{afterPhoto}
+		WHERE id = #{id}
+	</update>
+
+	<update id="updatePraise">
+            UPDATE user_community
+            SET praise_points = praise_points+#{praise}
+            WHERE id = #{id}
+    </update>
+
+</mapper>
